@@ -1,4 +1,4 @@
-; load 'dh' sectors from drive 'dl' int ES:BX
+; load 'dh' sectors from drive 'dl' into ES:BX
 disk_load:
 	pusha
 	push dx
@@ -11,31 +11,32 @@ disk_load:
 	mov dh, 0x00 	; head number
 
 	int 0x13
-	jc disk_error 	; error in carry
+	jc .disk_error 	; error in carry
 
 	pop dx
 	cmp al, dh 		; BIOS sets 'al' to the # of sectors read.
-	jne sectors_error
+	jne .sectors_error
 
 	popa
 	ret
 
-disk_error:
-	mov bx, DISK_ERROR
-	call print
-	call print_nl
+	.disk_error:
+		lea bx, [.DISK_ERROR]
+		call print_error
 
-	mov dh, ah ; ah = error code, dl = disk drive that dropped the error
-	call print_hex
+		movzx dx, ah ; ah = error code, dl = disk drive that dropped the error
+		call print_hex16
 
-	jmp disk_loop
+		jmp .disk_loop
 
-sectors_error:
-	mov bx, SECTORS_ERROR
-	call print
+	.sectors_error:
+		mov bx, .SECTORS_ERROR
+		call print_error
 
-disk_loop:
+	; ??? retry disk read
+	.disk_loop:
+		jmp $
 
 
-DISK_ERROR:	db "Disk read error", 0
-SECTORS_ERROR: db "Disk read error", 0
+	.DISK_ERROR		db "Disk read error: ", 0
+	.SECTORS_ERROR 	db "Incorrect number of sectors read", 0

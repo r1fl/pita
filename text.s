@@ -18,6 +18,21 @@ print:
 		popa
 		ret
 
+; Print an error message pointed by 'bx'
+print_error:
+	push bx
+
+	lea bx, [.ERR_STRING]
+	call print
+
+	pop bx
+	call print
+	call print_ln
+
+	ret
+
+	.ERR_STRING db "[!] ",0
+
 ; Print line feed
 print_ln:
 	push ax
@@ -55,7 +70,7 @@ print_hex16:
 
 	; insert character to HEX_BUF string
 	.insert:
-		lea bx, [HEX_BUF + 5] 	; first digit
+		lea bx, [.HEX_BUF + 5] 	; first digit
 		sub bx, cx
 		mov [bx], al 			; insert char
 
@@ -64,11 +79,10 @@ print_hex16:
 		jmp .hex_loop
 
 	.printbuf:
-		lea bx, [HEX_BUF]
+		lea bx, [.HEX_BUF]
 		call print
 
 		popa
 		ret
 
-HEX_BUF db '0x0000',0
-
+	.HEX_BUF db '0x0000',0
