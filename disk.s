@@ -1,3 +1,4 @@
+[bits 16]
 ; load 'dh' sectors from drive 'dl' into ES:BX
 disk_load:
 	pusha

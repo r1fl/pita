@@ -27,13 +27,25 @@
 
 	mov dx, [0x8000 + 512]
 	call print_hex16
+	call print_ln
+
+	call protected_enter
 
 	jmp $
 
-%include "text.s"
+[bits 32]
+BEGIN_PM:
+	mov ebx, MSG_PROT_MODE
+	call gm_print
+	jmp $
+
+
+%include "io.s"
 %include "disk.s"
+%include "switch.s"
 
 hello db "Shalom Olam",0
+MSG_PROT_MODE db "Promode!!",0
 
 ; Magic value
 times 510 - ($-$$) db 0
