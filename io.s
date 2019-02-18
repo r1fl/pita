@@ -2,7 +2,8 @@
 	VIDEO_MEMORY equ 0xb8000
 	WHITE_ON_BLACK equ 0x0f
 
-	; arg @ ebx: string addr
+	; print string to screen.
+	; arg @ ebx: string addr.
 	gm_print:
 		pusha
 		mov edx, VIDEO_MEMORY
@@ -23,6 +24,47 @@
 		.done:
 			popa
 			ret
+
+
+	; draw hex to screen.
+	; arg @ edx: 4 byte hex value.
+	gm_print_hex32:
+		; 0x30 <= ASCII NUMBERS <= 0x39
+		; 0x41 <= ASCII LETTERS <= 0x46
+		pusha
+
+		xor ecx, ecx
+		.hex_loop:
+			cmp cx, 8
+			je .printbuf
+
+			mov ax, dx
+			and ax, 0x000f
+			add al, 0x30
+
+			cmp al, 0x39
+			jle .insert
+
+			add al, 7
+
+		.insert:
+			lea ebx, [.HEX_BUF+9]
+			sub ebx, ecx
+			mov [ebx], al
+
+			inc ecx
+			shr edx, 4
+			jmp .hex_loop
+
+		.printbuf:
+			lea ebx, [.HEX_BUF]
+			call gm_print
+
+			popa
+			ret
+
+		.HEX_BUF db '0x00000000',0
+		.HEX_BUF_END equ $
 
 [bits 16]
 	; Print a string pointed by 'bx'

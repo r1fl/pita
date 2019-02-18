@@ -37,6 +37,10 @@
 BEGIN_PM:
 	mov ebx, MSG_PROT_MODE
 	call gm_print
+
+	mov edx, $
+	call gm_print_hex32
+
 	jmp $
 
 
